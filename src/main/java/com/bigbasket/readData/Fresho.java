@@ -1,5 +1,7 @@
 package com.bigbasket.readData;
 
+import org.springframework.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,9 +15,10 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class Fresho {
 
     private static final String uri = "https://www.bigbasket.com/pd/";
-    private static final List<String> notValidProducts = new ArrayList<>();
+    private static final List<Product> notValidProducts = new ArrayList<>();
+    private static final List<Product> validProducts = new ArrayList<>();
     private static final long startProductId = 10000000;
-    private static final long endProductId = 10001000;
+    private static final long endProductId = 10001030;
 
     public String readData() throws IOException {
         long init = System.currentTimeMillis();
@@ -23,12 +26,14 @@ public class Fresho {
         long prodId = startProductId;
         while(prodId<endProductId){
             long start = System.currentTimeMillis();
-            rawData = readData(String.valueOf(prodId));
+            readData(String.valueOf(prodId));
             prodId++;
-            System.out.println(rawData);
+//            System.out.println(rawData);
 //            System.out.println("    Time taken: "+getTimeTaken ((System.currentTimeMillis())-start));
         }
+        System.out.println(validProducts.toString());
         System.out.println("Total Time taken: "+getTimeTaken ((System.currentTimeMillis())-init));
+        System.out.println(notValidProducts.toString());
         return rawData;
     }
 
@@ -52,12 +57,12 @@ public class Fresho {
         }
         return time+suffix;
     }
-    private String readData(String productId) throws IOException {
-        if(!String.valueOf(10000364).equals(productId)){
+    private void readData(String productId) {
+        StringBuffer sb = new StringBuffer();
+        try {
             URL url = new URL(uri+productId);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
-            StringBuffer sb = new StringBuffer();
             if (con.getResponseCode() == HTTP_OK){
                 BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String in;
@@ -65,12 +70,15 @@ public class Fresho {
                     sb.append(in);
                 }
             }
-            return extractProductDetails(sb,productId);
+        } catch (IOException e) {
+            notValidProducts.add(new Product(String.valueOf(productId)));
+//            System.out.println("Failed to retrieve data");
+//            return "### NO PRODUCT FOR PRODUCT ID"+productId+ "###";
         }
-        return "";
+        extractProductDetails(sb,productId);
     }
 
-    private String extractProductDetails(StringBuffer sb, String productId){
+    private void extractProductDetails(StringBuffer sb, String productId){
         String product = "";
         String productName = "";
         String quantity = "";
@@ -100,11 +108,19 @@ public class Fresho {
             end = actual.indexOf("\"");
             price = actual.substring(0,end);
         } catch (Exception e){
-            notValidProducts.add(String.valueOf(productId));
+            notValidProducts.add(new Product(String.valueOf(productId)));
 //            System.out.println("Failed to retrieve data");
 //            return "### NO PRODUCT FOR PRODUCT ID"+productId+ "###";
         }
+        Product p = new Product(productId);
+        if(!StringUtils.isEmpty(productName)){
+            p.setName(productName);
+            p.setQuantity(quantity);
+            p.setPrice(price);
+            validProducts.add(p);
+        } else {
+            notValidProducts.add(p);
+        }
 
-        return productId+":"+productName+":"+quantity+":"+price;
     }
 }
