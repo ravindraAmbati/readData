@@ -1,4 +1,6 @@
-select count(*) from product;
+select p1.id, p2.id, p1.name,p1.price from product p1, product p2
+where p1.id != p2.id and p1.prodid = p2.prodid and p1.name = p2.name and p1.quantity = p2.quantity and p1.price = p2.price;
+select * from product where name IS NOT NULL order by prodid;
 select count(*) from product where name IS NOT NULL;
 select count(*) from product where name IS NULL;
 select * from product where name IS NOT NULL order by price desc;
