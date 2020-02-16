@@ -1,0 +1,2 @@
+cd .\
+gradle clean bootJar
