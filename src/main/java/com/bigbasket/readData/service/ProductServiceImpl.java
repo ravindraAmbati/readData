@@ -15,7 +15,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean save(Product product) {
-        return repo.save(product);
+        return (null != product.getName() && !product.getName().isEmpty() && product.getPrice() > 0) && repo.save(product);
     }
 
     @Override
