@@ -35,6 +35,31 @@ public class ProductControllerImpl implements ProductController {
         }
     }
 
+    @PutMapping(path = "start/{prodId}", consumes = "application/json", produces = "application/json")
+    public void start(@PathVariable String prodId){
+        try{
+            long prodIdL= Long.parseLong(prodId);
+            service.save(readProduct.readProduct(prodIdL));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PutMapping(path = "startFrom/{prodId}", consumes = "application/json", produces = "application/json")
+    public void startFrom(@PathVariable String prodId){
+        try {
+            long prodIdL = Long.parseLong(prodId);
+            while(prodIdL<endProductId){
+                service.save(readProduct.readProduct(prodIdL));
+                prodIdL++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     @PostMapping(path = "/save",consumes = "application/json",produces = "application/json")
     public boolean save(@RequestBody Product product) {

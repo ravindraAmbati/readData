@@ -71,6 +71,7 @@ public class ReadProduct {
         String productName = "";
         String quantity = "";
         String price = "";
+        double priceD=0;
         try{
             //product
             StringBuffer actual = new StringBuffer();
@@ -95,14 +96,15 @@ public class ReadProduct {
             actual.append(sb.substring(begin+72,begin+100));
             end = actual.indexOf("\"");
             price = actual.substring(0,end);
+            priceD = Double.parseDouble(price);
         } catch (Exception e){
             return new Product(String.valueOf(productId));
         }
         Product p = new Product(productId);
-        if(!StringUtils.isEmpty(productName)){
+        if(!StringUtils.isEmpty(productName) && priceD>0){
             p.setName(productName);
             p.setQuantity(quantity);
-            p.setPrice(Double.parseDouble(price));
+            p.setPrice(priceD);
         }
         return p;
     }
